@@ -114,5 +114,36 @@ async function createOffer(req, res, next) {
     }
 }
 
+async function getFavoriteOffers(req, res, next) {
+    try {
+        const offers = await Offer.findAll({
+            where: { isFavorite: true }
+        });
+        const adaptedOffers = offers.map(adaptOfferToClient);
+        res.status(200).json(adaptedOffers);
+    } catch (error) {
+        next(ApiError.internal('Не удалось получить избранные предложения'));
+    }
+}
 
-export { getAllOffers, getFullOffer, createOffer };
+
+async function toggleFavorite(req, res, next) {
+    try {
+        const { offerId, status } = req.params;
+        
+        const offer = await Offer.findByPk(offerId);
+        if (!offer) {
+            return next(ApiError.notFound('Предложение не найдено'));
+        }
+        
+        offer.isFavorite = status === '1';
+        await offer.save();
+        
+        res.json(adaptOfferToClient(offer));
+    } catch (error) {
+        next(ApiError.internal('Ошибка при обновлении статуса избранного'));
+    }
+}
+
+export { getAllOffers, getFullOffer, createOffer, getFavoriteOffers, toggleFavorite };
+
