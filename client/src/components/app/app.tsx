@@ -7,6 +7,11 @@ import { NotFound } from "../not-found/not-found";
 import { PrivateRoute } from '../private-route/private-route';
 import { AppRoute } from '../../const';
 import type { FullOffer, OffersList } from '../../types/offer';
+import { useAppSelector, useAppDispatch } from '../hooks';
+import { LoadingPage } from '../loading-page/loading-page';
+import { AuthorizationStatus } from '../../const';
+import { fetchOffersAction, checkAuthAction } from '../store/api-actions';
+import { useEffect } from 'react';
 
 type AppMainPageProps = {
     rentalOffersCount: number;
@@ -16,24 +21,29 @@ type AppMainPageProps = {
 }
 
 function App({rentalOffersCount, offers, offersList, favoriteOffers}: AppMainPageProps) {
+    const dispatch = useAppDispatch();
+    const authorizationStatus = useAppSelector((state) => state.authorizationStatus);
+    const isOffersDataLoading = useAppSelector((state) => state.isOffersDataLoading);
+
+    useEffect(() => {
+        dispatch(checkAuthAction());
+        dispatch(fetchOffersAction());
+    }, [dispatch]);
+
+    if (authorizationStatus === AuthorizationStatus.Unknown || isOffersDataLoading) {
+        return <LoadingPage />;
+    }
+
     return (
         <BrowserRouter>
             <Routes>
                 <Route 
                     path={AppRoute.Main} 
-                    element={
-                        <PrivateRoute>
-                            <MainPage />
-                        </PrivateRoute>
-                    }
+                    element={<MainPage />}
                 />
                 <Route 
                     path={AppRoute.Login} 
-                    element={
-                        <PrivateRoute>
-                            <LoginPage />
-                        </PrivateRoute>
-                    }
+                    element={<LoginPage />}
                 />
                 <Route 
                     path={AppRoute.Favorites} 
@@ -45,11 +55,7 @@ function App({rentalOffersCount, offers, offersList, favoriteOffers}: AppMainPag
                 />
                 <Route 
                     path={AppRoute.Offer} 
-                    element={
-                        <PrivateRoute>
-                            <OfferPage offers={offers}/>
-                        </PrivateRoute>
-                    }
+                    element={<OfferPage offers={offers}/>}
                 />
                 <Route 
                     path="*" 

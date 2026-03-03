@@ -1,23 +1,31 @@
-import { useState, type FormEvent } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useRef, type FormEvent } from 'react';
+import { Navigate } from 'react-router-dom';
 import { Logo } from '../../components/logo/logo';
-import { useAppDispatch } from '../../components/hooks';
-import { requireAuthorization } from '../../components/store/action';
+import { useAppDispatch, useAppSelector } from '../../components/hooks';
+import { loginAction } from '../../components/store/api-actions';
 import { AppRoute, AuthorizationStatus } from '../../const';
+import type { AuthData } from '../../types/user-data';
 import { Link } from 'react-router-dom';
 
 function LoginPage() {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
+    const loginRef = useRef<HTMLInputElement | null>(null);
+    const passwordRef = useRef<HTMLInputElement | null>(null);
     const dispatch = useAppDispatch();
-    const navigate = useNavigate();
+    const authorizationStatus = useAppSelector((state) => state.authorizationStatus);
 
-    const handleSubmit = (evt: FormEvent) => {
+    if (authorizationStatus === AuthorizationStatus.Auth) {
+        return <Navigate to={AppRoute.Main} />;
+    }
+
+    const handleSubmit = (evt: FormEvent<HTMLFormElement>) => {
         evt.preventDefault();
 
-        if (email && password.length >= 3) {
-            dispatch(requireAuthorization(AuthorizationStatus.Auth, email));
-            navigate(AppRoute.Main);
+        if (loginRef.current && passwordRef.current) {
+            const authData: AuthData = {
+                email: loginRef.current.value,
+                password: passwordRef.current.value,
+            };
+            dispatch(loginAction(authData));
         }
     };
 
@@ -29,19 +37,6 @@ function LoginPage() {
                         <div className="header__left">
                             <Logo />
                         </div>
-                        <nav className="header__nav">
-                            <ul className="header__nav-list">
-                                <li className="header__nav-item user">
-                                    <Link 
-                                        className="header__nav-link header__nav-link--profile" 
-                                        to={AppRoute.Favorites}
-                                    >
-                                        <div className="header__avatar-wrapper user__avatar-wrapper"></div>
-                                        <span className="header__login">Sign in</span>
-                                    </Link>
-                                </li>
-                            </ul>
-                        </nav>
                     </div>
                 </div>
             </header>
@@ -54,25 +49,23 @@ function LoginPage() {
                             <div className="login__input-wrapper form__input-wrapper">
                                 <label className="visually-hidden">E-mail</label>
                                 <input 
+                                    ref={loginRef}
                                     className="login__input form__input" 
                                     type="email" 
                                     name="email"
                                     placeholder="Email" 
                                     required
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
                                 />
                             </div>
                             <div className="login__input-wrapper form__input-wrapper">
                                 <label className="visually-hidden">Password</label>
                                 <input 
+                                    ref={passwordRef}
                                     className="login__input form__input" 
                                     type="password" 
                                     name="password"
                                     placeholder="Password" 
                                     required
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
                                 />
                             </div>
                             <button className="login__submit form__submit button" type="submit">
@@ -82,9 +75,9 @@ function LoginPage() {
                     </section>
                     <section className="locations locations--login locations--current">
                         <div className="locations__item">
-                            <a className="locations__item-link" href="#">
+                            <Link className="locations__item-link" to={AppRoute.Main}>
                                 <span>Amsterdam</span>
-                            </a>
+                            </Link>
                         </div>
                     </section>
                 </div>

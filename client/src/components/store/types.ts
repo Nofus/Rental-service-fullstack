@@ -3,6 +3,8 @@ import type { SortOffer } from '../../types/sort';
 import { AuthorizationStatus } from '../../const';
 
 export type State = {
+    error: any;
+    isOffersDataLoading: any;
     city: CityOffer;
     offers: OffersList[];
     sortType: SortOffer;
