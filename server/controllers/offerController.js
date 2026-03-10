@@ -145,5 +145,7 @@ async function toggleFavorite(req, res, next) {
     }
 }
 
+
+
 export { getAllOffers, getFullOffer, createOffer, getFavoriteOffers, toggleFavorite };
 

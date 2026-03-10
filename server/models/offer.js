@@ -91,7 +91,7 @@ Offer.init({
 });
 
 
-// Связь с пользователем
+
 Offer.belongsTo(User, { as: 'author', foreignKey: 'authorId' });
 
 

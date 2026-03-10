@@ -6,21 +6,13 @@ import { OfferPage } from "../../pages/offer-page/offer-page";
 import { NotFound } from "../not-found/not-found";
 import { PrivateRoute } from '../private-route/private-route';
 import { AppRoute } from '../../const';
-import type { FullOffer, OffersList } from '../../types/offer';
 import { useAppSelector, useAppDispatch } from '../hooks';
 import { LoadingPage } from '../loading-page/loading-page';
 import { AuthorizationStatus } from '../../const';
 import { fetchOffersAction, checkAuthAction } from '../store/api-actions';
 import { useEffect } from 'react';
 
-type AppMainPageProps = {
-    rentalOffersCount: number;
-    offers: FullOffer[];
-    offersList: OffersList[];
-    favoriteOffers: OffersList[]; 
-}
-
-function App({rentalOffersCount, offers, offersList, favoriteOffers}: AppMainPageProps) {
+function App() {
     const dispatch = useAppDispatch();
     const authorizationStatus = useAppSelector((state) => state.authorizationStatus);
     const isOffersDataLoading = useAppSelector((state) => state.isOffersDataLoading);
@@ -49,13 +41,13 @@ function App({rentalOffersCount, offers, offersList, favoriteOffers}: AppMainPag
                     path={AppRoute.Favorites} 
                     element={
                         <PrivateRoute>
-                            <FavoritesPage favoriteOffers={favoriteOffers} />
+                            <FavoritesPage />
                         </PrivateRoute>
                     } 
                 />
                 <Route 
                     path={AppRoute.Offer} 
-                    element={<OfferPage offers={offers}/>}
+                    element={<OfferPage />}
                 />
                 <Route 
                     path="*" 

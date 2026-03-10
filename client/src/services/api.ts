@@ -28,19 +28,16 @@ export const createAPI = (): AxiosInstance => {
   });
 
   api.interceptors.request.use(
-    (config: InternalAxiosRequestConfig): InternalAxiosRequestConfig => {
-      const token = getToken();
-      
-      if (token && config.headers) {
-        config.headers['x-token'] = token;
-      }
-      
-      return config;
-    },
-    (error) => {
-      return Promise.reject(error);
+  (config: InternalAxiosRequestConfig): InternalAxiosRequestConfig => {
+    const token = getToken();
+    
+    if (token && config.headers) {
+      config.headers['Authorization'] = `Bearer ${token}`; 
     }
-  );
+    
+    return config;
+  }
+);
 
   api.interceptors.response.use(
     (response) => response,

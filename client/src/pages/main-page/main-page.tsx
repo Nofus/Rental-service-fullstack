@@ -20,6 +20,7 @@ function MainPage() {
     const selectedCityOffers = getOffersByCity(selectedCity?.name, offersList);
     const sortedOffers = sortOffersByType(selectedCityOffers, sortType);
     const rentalOffersCount = selectedCityOffers.length;
+    const hasOffers = rentalOffersCount > 0;
 
     const handleSortChange = (newSorting: SortOffer) => {
         dispatch(changeSortType(newSorting));
@@ -29,7 +30,7 @@ function MainPage() {
         <div className="page page--gray page--main">
             <Header />
             
-            <main className="page__main page__main--index">
+            <main className={`page__main page__main--index ${!hasOffers ? 'page__main--index-empty' : ''}`}>
                 <h1 className="visually-hidden">Cities</h1>
                 <div className="tabs">
                     <section className="locations container">
@@ -37,35 +38,49 @@ function MainPage() {
                     </section>
                 </div>
                 <div className="cities">
-                    <div className="cities__places-container container">
-                        <section className="cities__places places">
-                            <h2 className="visually-hidden">Places</h2>
-                            <b className="places__found">{rentalOffersCount} places to stay in {selectedCity?.name}</b>
-                            <SortOptions 
-                                activeSorting={sortType} 
-                                onChange={handleSortChange} 
-                            />
-                            <CitiesCardList 
-                                offersList={sortedOffers} 
-                                onOfferHover={setSelectedOfferId}
-                                onOfferLeave={() => setSelectedOfferId(undefined)}
-                            />
-                        </section>
-                        <div className="cities__right-section">
-                            <Map 
-                                offers={sortedOffers}
-                                selectedOfferId={selectedOfferId}
-                                city={selectedCity || { 
-                                    name: 'Paris', 
-                                    location: {
-                                        latitude: 48.85661,
-                                        longitude: 2.351499,
-                                        zoom: 13
-                                    }
-                                }}
-                            />
+                    {hasOffers ? (
+                        <div className="cities__places-container container">
+                            <section className="cities__places places">
+                                <h2 className="visually-hidden">Places</h2>
+                                <b className="places__found">{rentalOffersCount} places to stay in {selectedCity?.name}</b>
+                                <SortOptions 
+                                    activeSorting={sortType} 
+                                    onChange={handleSortChange} 
+                                />
+                                <CitiesCardList 
+                                    offersList={sortedOffers} 
+                                    onOfferHover={setSelectedOfferId}
+                                    onOfferLeave={() => setSelectedOfferId(undefined)}
+                                />
+                            </section>
+                            <div className="cities__right-section">
+                                <Map 
+                                    offers={sortedOffers}
+                                    selectedOfferId={selectedOfferId}
+                                    city={selectedCity || { 
+                                        name: 'Paris', 
+                                        location: {
+                                            latitude: 48.85661,
+                                            longitude: 2.351499,
+                                            zoom: 13
+                                        }
+                                    }}
+                                />
+                            </div>
                         </div>
-                    </div>
+                    ) : (
+                        <div className="cities__places-container cities__places-container--empty container">
+                            <section className="cities__no-places">
+                                <div className="cities__status-wrapper tabs__content">
+                                    <b className="cities__status">No places to stay available</b>
+                                    <p className="cities__status-description">
+                                        We could not find any property available at the moment in {selectedCity?.name || 'Dusseldorf'}
+                                    </p>
+                                </div>
+                            </section>
+                            <div className="cities__right-section"></div>
+                        </div>
+                    )}
                 </div>
             </main>
         </div>

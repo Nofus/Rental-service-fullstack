@@ -1,10 +1,9 @@
 export type UserData = {
-  id?: string;
-  name?: string;
-  username?: string;
-  avatarUrl?: string | null;
-  isPro?: boolean;
+  id: string;
   email: string;
+  username: string;       
+  avatarUrl: string | null;
+  isPro: boolean;
   token: string;
 };
 

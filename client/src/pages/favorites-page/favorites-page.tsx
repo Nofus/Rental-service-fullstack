@@ -1,13 +1,26 @@
+import { useEffect } from 'react';
 import { Header } from '../../components/header/header';
 import { FavoriteCardList } from '../../components/favorite-card-list/favorite-card-list';
 import { Link } from 'react-router-dom';
+import { useAppSelector, useAppDispatch } from '../../components/hooks';
+import { fetchFavoriteOffersAction } from '../../components/store/api-actions';
+import { LoadingPage } from '../../components/loading-page/loading-page';
 import type { OffersList } from '../../types/offer';
 
-type FavoritesPageProps = {
-    favoriteOffers: OffersList[];
-}
+function FavoritesPage() {
+    const dispatch = useAppDispatch();
+    const favoriteOffers = useAppSelector((state) => state.favoriteOffers);
+    const isFavoriteLoading = useAppSelector((state) => state.isFavoriteLoading);
 
-function FavoritesPage({ favoriteOffers }: FavoritesPageProps) {
+    useEffect(() => {
+        dispatch(fetchFavoriteOffersAction());
+    }, [dispatch]);
+
+    if (isFavoriteLoading) {
+        return <LoadingPage />;
+    }
+
+    
     const offersByCity = favoriteOffers.reduce((acc, offer) => {
         const cityName = offer.city.name;
         if (!acc[cityName]) {
@@ -15,34 +28,49 @@ function FavoritesPage({ favoriteOffers }: FavoritesPageProps) {
         }
         acc[cityName].push(offer);
         return acc;
-    }, {} as Record<string, typeof favoriteOffers>);
+    }, {} as Record<string, OffersList[]>);
+
+    const hasFavorites = Object.keys(offersByCity).length > 0;
 
     return (
-        <div className="page">
+        <div className={`page ${!hasFavorites ? 'page--favorites-empty' : ''}`}>
             <Header />
             
-            <main className="page__main page__main--favorites">
+            <main className={`page__main page__main--favorites ${!hasFavorites ? 'page__main--favorites-empty' : ''}`}>
                 <div className="page__favorites-container container">
-                    <section className="favorites">
-                        <h1 className="favorites__title">Saved listing</h1>
-                        <ul className="favorites__list">
-                            {Object.entries(offersByCity).map(([cityName, cityOffers]) => (
-                                <li key={cityName} className="favorites__locations-items">
-                                    <div className="favorites__locations locations locations--current">
-                                        <div className="locations__item">
-                                            <Link className="locations__item-link" to={`/?city=${cityName}`}>
-                                                <span>{cityName}</span>
-                                            </Link>
+                    {hasFavorites ? (
+                        <section className="favorites">
+                            <h1 className="favorites__title">Saved listing</h1>
+                            <ul className="favorites__list">
+                                {Object.entries(offersByCity).map(([cityName, cityOffers]) => (
+                                    <li key={cityName} className="favorites__locations-items">
+                                        <div className="favorites__locations locations locations--current">
+                                            <div className="locations__item">
+                                                <Link className="locations__item-link" to={`/?city=${cityName}`}>
+                                                    <span>{cityName}</span>
+                                                </Link>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <FavoriteCardList offers={cityOffers} />
-                                </li>
-                            ))}
-                        </ul>
-                    </section>
+                                        <FavoriteCardList offers={cityOffers} />
+                                    </li>
+                                ))}
+                            </ul>
+                        </section>
+                    ) : (
+                        <section className="favorites favorites--empty">
+                            <h1 className="visually-hidden">Favorites (empty)</h1>
+                            <div className="favorites__status-wrapper">
+                                <b className="favorites__status">Nothing yet saved.</b>
+                                <p className="favorites__status-description">
+                                    Save properties to narrow down search or plan your future trips.
+                                </p>
+                            </div>
+                        </section>
+                    )}
                 </div>
             </main>
-            <footer className="footer container">
+            
+            <footer className="footer">
                 <Link className="footer__logo-link" to="/">
                     <img className="footer__logo" src="/img/logo.svg" alt="Rent service logo" width="64" height="33" />
                 </Link>

@@ -46,6 +46,12 @@ export const registration = async (req, res, next) => {
 };
 
 
+const getBaseUrl = () => {
+    const host = process.env.HOST || 'http://localhost';
+    const port = process.env.PORT || 5000;
+    return `${host}:${port}`;
+};
+
 export const login = async (req, res, next) => {
     try {
         const { email, password } = req.body;
@@ -61,15 +67,19 @@ export const login = async (req, res, next) => {
         }
 
         const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '24h' });
+        
+        
+        const baseUrl = getBaseUrl();
+        const avatarUrl = user.avatar 
+            ? `${baseUrl}${user.avatar.startsWith('/') ? '' : '/'}${user.avatar}`
+            : null;
 
         res.json({
-            user: {
-                id: user.id,
-                email: user.email,
-                username: user.username,
-                avatarUrl: user.avatar,
-                isPro: user.userType === 'pro'
-            },
+            id: user.id,
+            email: user.email,
+            username: user.username,
+            avatarUrl: avatarUrl, 
+            isPro: user.userType === 'pro',
             token
         });
     } catch (error) {
@@ -81,18 +91,22 @@ export const login = async (req, res, next) => {
 export const checkAuth = (req, res) => {
     const user = req.user;
     
-    
     const token = jwt.sign(
         { id: user.id },
         process.env.JWT_SECRET,
         { expiresIn: '24h' }
     );
 
+    const baseUrl = getBaseUrl();
+    const avatarUrl = user.avatar 
+        ? `${baseUrl}${user.avatar.startsWith('/') ? '' : '/'}${user.avatar}`
+        : null;
+
     return res.json({
         id: user.id,
         email: user.email,
         username: user.username,
-        avatarUrl: user.avatar,
+        avatarUrl: avatarUrl, 
         isPro: user.userType === 'pro',
         token
     });
