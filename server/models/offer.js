@@ -33,8 +33,6 @@ Offer.init({
     photos: {
         type: DataTypes.ARRAY(DataTypes.STRING),
         allowNull: false,
-
-
     },
     isPremium: {
         type: DataTypes.BOOLEAN,
