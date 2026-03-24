@@ -90,4 +90,6 @@ const reducer = createReducer(initialState, (builder) => {
         });
 });
 
+
+export type InitialState = State;
 export { reducer };

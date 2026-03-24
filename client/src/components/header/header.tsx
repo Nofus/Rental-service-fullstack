@@ -3,12 +3,16 @@ import { Logo } from '../logo/logo';
 import { AppRoute, AuthorizationStatus } from '../../const';
 import { useAppSelector, useAppDispatch } from '../../components/hooks';
 import { logoutAction } from '../../components/store/api-actions'; 
+import { createSelector } from '@reduxjs/toolkit';
+
+const selectFavoriteOffers = createSelector(
+    (state: any) => state.offers,
+    (offers) => offers.filter((offer: any) => offer.isFavorite)
+);
 
 function Header() {
     const dispatch = useAppDispatch();
-    const favoriteOffers = useAppSelector((state) => 
-        state.offers.filter((offer) => offer.isFavorite)
-    );
+    const favoriteOffers = useAppSelector(selectFavoriteOffers);
     const authorizationStatus = useAppSelector((state) => state.authorizationStatus);
     const userEmail = useAppSelector((state) => state.userEmail);
     const userName = useAppSelector((state) => state.userName);
