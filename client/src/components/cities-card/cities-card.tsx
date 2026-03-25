@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { AppRoute } from '../../const';
 import { useAppDispatch, useAppSelector } from '../../components/hooks';
 import { toggleFavorite } from '../../components/store/action';
@@ -34,15 +34,14 @@ function CitiesCard({ id, title, type, price, previewImage, isPremium, rating, i
             onOfferLeave();
         }
     };
+    const navigate = useNavigate()
 
     const handleFavoriteClick = (e: React.MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
         
         if (!isAuth) {
-            
-            alert('Please sign in to add to favorites');
-            return;
+            navigate(AppRoute.Login)
         }
         
         
